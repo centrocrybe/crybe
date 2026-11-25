@@ -3,6 +3,12 @@ import { redirect } from "next/navigation";
 import { getAdminUser } from "../../../lib/supabaseServer";
 import FormularioLogin from "./FormularioLogin";
 
+// El acceso al panel no debe posicionarse en Google.
+export const metadata = {
+  title: "Acceso admin | Centro CRYBE",
+  robots: { index: false, follow: false },
+};
+
 // Si ya hay sesión de admin no tiene sentido mostrar el formulario: el link
 // "Acceso admin" del footer apunta acá y obligaba a volver a loguearse.
 // Solo redirige si isAdmin: alguien logueado que no es admin igual puede

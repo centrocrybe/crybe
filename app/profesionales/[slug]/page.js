@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { CalendarDays } from "lucide-react";
 import { profesionales } from "../../../data/profesionales";
 import { getSupabaseBrowser } from "../../../lib/supabase";
@@ -75,10 +76,39 @@ async function getProfesional(slug) {
   return profesionales.find((item) => item.slug === slug) || null;
 }
 
+// generateMetadata y la página leen lo mismo: cache() evita duplicar la
+// consulta dentro de un mismo request (importante si un bot abre muchas fichas).
+const getProfesionalCacheado = cache(getProfesional);
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const profesional = await getProfesionalCacheado(slug);
+  if (!profesional) {
+    // Evita que una 404 suave se indexe como página válida.
+    return {
+      title: "Profesional no encontrado | Centro CRYBE",
+      robots: { index: false, follow: false },
+    };
+  }
+  const titulo = `${profesional.nombre} — ${profesional.especialidad} | Centro CRYBE`.trim().slice(0, 120);
+  const descripcion = (profesional.resumen || profesional.descripcion || "")
+    .trim()
+    .slice(0, 160);
+  // El canonical sale del dato saneado, nunca del slug crudo de la URL.
+  const canonico = `/profesionales/${encodeURIComponent(profesional.slug)}`;
+
+  return {
+    title: titulo,
+    description: descripcion,
+    alternates: { canonical: canonico },
+    openGraph: { title: titulo, description: descripcion, type: "profile" },
+  };
+}
+
 export default async function ProfesionalPage({ params }) {
   const { slug } = await params;
   const [profesional, ajustes, sesion] = await Promise.all([
-    getProfesional(slug),
+    getProfesionalCacheado(slug),
     getAjustes(),
     getAdminUser().catch(() => ({ user: null, isAdmin: false })),
   ]);
@@ -162,13 +192,6 @@ export default async function ProfesionalPage({ params }) {
                   </div>
                 </div>
               )}
-
-              <a
-                href="/#contacto"
-                className="mt-8 inline-flex w-full sm:w-auto rounded-full bg-[#2B2B2B] px-6 py-3 text-[13px] font-semibold text-white shadow-[0_8px_22px_rgba(0,0,0,0.14)] sm:px-7 sm:py-3.5 sm:text-[14px]"
-              >
-                Solicitar turno
-              </a>
             </div>
           </div>
         </div>

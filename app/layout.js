@@ -1,5 +1,6 @@
 import "./globals.css";
 import { League_Spartan, Literata, Manrope } from "next/font/google";
+import { getSiteUrl } from "../lib/site";
 
 // Fuentes auto-hospedadas por Next (display=swap + precarga automática).
 // Antes se pedían con @import en el CSS: bloqueaba el primer render y en
@@ -37,7 +38,8 @@ try {
 // Sin dominio todavía: mientras tanto los absolutos apuntan a la URL de
 // Workers. Cuando compren el dominio, cambiar SOLO esta línea.
 export const metadata = {
-  metadataBase: new URL("https://crybe-next.crybe.workers.dev"),
+  metadataBase: new URL(getSiteUrl()),
+  alternates: { canonical: "/" },
   title: "Centro CRYBE | General Roca, Río Negro",
   description:
     "Centro CRYBE en General Roca, Río Negro. Psicología, psiquiatría, fonoaudiología, psicopedagogía, kinesiología y psicomotricidad. Atención presencial y online.",

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Info, X, CalendarDays, MapPin, Video } from "lucide-react";
 
@@ -38,6 +39,11 @@ const FotoConFallback = ({ profesional, className }) => {
 
 const TarjetaProfesional = ({ profesional, index, onVerPerfil }) => {
   const waLink = `https://wa.me/${profesional.whatsapp}?text=${encodeURIComponent(`Hola ${profesional.nombre}, quiero consultar por un turno en CRYBE.`)}`;
+  // Enlace rastreable hacia la ficha: el modal es client-only y Google no lo
+  // ve. El slug se valida antes de meterlo en una URL pública.
+  const perfilHref = /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(profesional.slug || "")
+    ? `/profesionales/${profesional.slug}`
+    : null;
 
   return (
     <Reveal
@@ -68,7 +74,13 @@ const TarjetaProfesional = ({ profesional, index, onVerPerfil }) => {
           </div>
           <div className="flex flex-col items-center text-center">
             <h3 className="font-titulo text-[13px] font-bold leading-tight text-[#1F1F1F] md:text-[14px] lg:text-[15px]">
-              {profesional.nombre}
+              {perfilHref ? (
+                <Link href={perfilHref} className="hover:text-[#0F3A7A] hover:underline">
+                  {profesional.nombre}
+                </Link>
+              ) : (
+                profesional.nombre
+              )}
             </h3>
             <span className="text-[11.5px] text-[#6B7280] sm:text-[12.5px]">
               {profesional.matricula}
