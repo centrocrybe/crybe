@@ -41,6 +41,8 @@ const securityHeaders = [
 
 const nextConfig = {
   experimental: {
+    // Recordatorios de upgrade enfocados en seguridad (v16.4+).
+    agentUpgrade: "security",
     // Achica el JS que baja al celu/tablet: importa solo el icono/componente
     // usado en vez del paquete entero.
     optimizePackageImports: ["lucide-react", "framer-motion"],
