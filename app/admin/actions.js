@@ -413,7 +413,7 @@ export async function guardarEspecialidad(raw) {
       nombre: z.string().trim().min(2).max(80).optional(),
       titulo: z.string().trim().max(200).default(""),
       descripcion: z.string().trim().max(600).default(""),
-      imagen: z.string().trim().max(500).default(""),
+      imagen: z.string().trim().min(1, "La imagen es obligatoria").max(500),
       hero_titulo: z.string().trim().max(200).default(""),
       hero_subtitulo: z.string().trim().max(600).default(""),
       hero_imagen: z.string().trim().max(500).default(""),

@@ -53,6 +53,10 @@ function EditorTarjeta({ esp, onCerrar, onGuardado }) {
       setMsg("El nombre es obligatorio.");
       return;
     }
+    if (!imagen.trim()) {
+      setMsg("La imagen es obligatoria.");
+      return;
+    }
     start(async () => {
       try {
         await guardarEspecialidad({
