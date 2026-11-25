@@ -108,14 +108,19 @@ const CarruselArticulo = ({ articulo }) => {
   const imagenes = [articulo.imagen, ...(articulo.galeria || [])];
   const [indice, setIndice] = useState(0);
   const ref = useRef(null);
+  const tickingRef = useRef(false);
 
   const onScroll = () => {
-    const el = ref.current;
-    if (!el || el.clientWidth === 0) return;
-    // Sin este guard se hacía setState por cada píxel scrolleado y el modal
-    // se re-renderizaba entero durante el gesto (tirones en tablet).
-    const siguiente = Math.round(el.scrollLeft / el.clientWidth);
-    setIndice((prev) => (prev === siguiente ? prev : siguiente));
+    if (tickingRef.current) return;
+    tickingRef.current = true;
+    requestAnimationFrame(() => {
+      const el = ref.current;
+      if (el && el.clientWidth > 0) {
+        const siguiente = Math.round(el.scrollLeft / el.clientWidth);
+        setIndice((prev) => (prev === siguiente ? prev : siguiente));
+      }
+      tickingRef.current = false;
+    });
   };
 
   const irA = (i) => {
@@ -127,13 +132,13 @@ const CarruselArticulo = ({ articulo }) => {
   const anterior = () => irA((indice - 1 + imagenes.length) % imagenes.length);
   const siguiente = () => irA((indice + 1) % imagenes.length);
 
-  if (imagenes.length === 1) {
+if (imagenes.length === 1) {
     return (
-      <div className="relative flex h-60 items-center justify-center overflow-hidden rounded-none bg-[#0B1F3A] md:h-64">
+      <div className="relative flex min-h-[280px] max-h-[55vh] items-center justify-center overflow-hidden rounded-none bg-[#0B1F3A] md:min-h-[340px]">
         <img
           src={imagenes[0]}
           alt={articulo.titulo}
-          className="h-full w-full object-contain"
+          className="max-h-[55vh] w-auto object-contain"
         />
         <span className="absolute left-5 top-5 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold text-[#0F3A7A] backdrop-blur">
           {articulo.categoria}
@@ -142,12 +147,12 @@ const CarruselArticulo = ({ articulo }) => {
     );
   }
 
-  return (
+return (
     <div className="relative overflow-hidden rounded-none bg-[#0B1F3A]">
       <div
         ref={ref}
         onScroll={onScroll}
-        className="flex h-60 snap-x snap-mandatory overflow-x-auto md:h-64"
+        className="flex min-h-[280px] max-h-[55vh] snap-x snap-mandatory overflow-x-auto md:min-h-[340px]"
         style={{ scrollbarWidth: "none" }}
       >
         {imagenes.map((img) => (
@@ -161,7 +166,7 @@ const CarruselArticulo = ({ articulo }) => {
               loading="lazy"
               decoding="async"
               draggable={false}
-              className="h-full w-full select-none object-contain"
+              className="max-h-[55vh] w-auto object-contain"
             />
           </div>
         ))}
@@ -275,11 +280,11 @@ const Novedades = ({ items }) => {
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
           >
-            <p className="font-titulo text-[13px] font-semibold uppercase tracking-[0.24em] text-[#0F3A7A] sm:text-[15px]">
-              Divulgación y Salud
+<p className="font-titulo text-[13px] font-semibold uppercase tracking-[0.24em] text-[#0F3A7A] sm:text-[15px]">
+              Recursos
             </p>
             <h2 className="mt-2 font-titulo text-[26px] font-semibold leading-tight text-[#1F1F1F] sm:text-[30px] md:text-[38px]">
-              Blog & Recursos para la Comunidad
+              Artículos y Guías para el Día a Día
             </h2>
             <p className="mx-auto mt-4 text-[15px] leading-7 text-[#3D3D3D] sm:text-[16px]">
               Artículos elaborados por nuestros terapeutas con información

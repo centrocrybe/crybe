@@ -1,75 +1,11 @@
 "use client";
 import { motion } from "framer-motion";
-import {
-  Handshake,
-  Brain,
-  HeartHandshake,
-  Sprout,
-  Users,
-  ClipboardCheck,
-  Armchair,
-  Network,
-} from "lucide-react";
+import { Sprout } from "lucide-react";
 import { ICONOS } from "../../lib/iconos";
 import Reveal from "./Reveal";
 
-const pilares = [
-  {
-    icono: Handshake,
-    titulo: "Acompañamiento",
-    texto:
-      "Un espacio donde puedas sentirte escuchado y acompañado durante cada etapa de tu proceso.",
-  },
-  {
-    icono: Brain,
-    titulo: "Enfoque integral",
-    texto:
-      "Profesionales de distintas áreas que pueden trabajar de manera complementaria según cada necesidad.",
-  },
-  {
-    icono: Network,
-    titulo: "Abordaje interdisciplinario",
-    texto:
-      "Realizamos ateneos clínicos y reuniones periódicas entre psicólogos, psicopedagogos, fonoaudiólogos y kinesiólogos para diseñar planes terapéuticos sinérgicos e integrados.",
-  },
-  {
-    icono: Sprout,
-    titulo: "Bienestar",
-    texto:
-      "Buscamos favorecer herramientas que contribuyan al desarrollo y bienestar de cada persona.",
-  },
-];
-
-const complementarios = [
-  {
-    icono: Users,
-    titulo: "Orientación familiar",
-    texto:
-      "Acompañamiento para padres y docentes que quieren ayudar mejor desde casa y la escuela.",
-  },
-  {
-    icono: ClipboardCheck,
-    titulo: "Evaluación diagnóstica",
-    texto:
-      "Evaluaciones ajustadas a cada situación. Identificamos el origen real antes de cualquier intervención.",
-  },
-  {
-    icono: HeartHandshake,
-    titulo: "Calidez humana y ética",
-    texto:
-      "Priorizamos la empatía activa, la escucha sin juzgar y el respeto absoluto a los tiempos de cada individuo y de su grupo familiar durante todo el tratamiento.",
-  },
-  {
-    icono: Armchair,
-    titulo: "Entornos tranquilos",
-    texto:
-      "Consultorios con iluminación natural, climatización individual y mobiliario específico para neurorehabilitación y juego simbólico.",
-  },
-];
-
 const Nosotros = ({ titulo, parrafos, items }) => {
-  // Si el admin cargó contenido en Supabase se usa eso; si no, datos locales.
-  const lista = items?.length ? items : [...pilares, ...complementarios];
+  const lista = items?.length ? items : [];
   const tituloFinal = titulo || "Un espacio cálido donde la salud mental y la rehabilitación convergen";
   const parrafosFinal = parrafos?.length
     ? parrafos
@@ -79,7 +15,7 @@ const Nosotros = ({ titulo, parrafos, items }) => {
       ];
 
   const iconoDe = (p) => (typeof p.icono === "string" ? ICONOS[p.icono] || Sprout : p.icono);
-  return (
+return (
     <section
       id="nosotros"
       data-navbar-color="#FFFFFF"
@@ -88,15 +24,7 @@ const Nosotros = ({ titulo, parrafos, items }) => {
         background: "#FAFBFF",
       }}
     >
-      {/* GRADIENTES LATERALES SUAVES — solo desktop: el blur de 100px+ en
-          tablet/mobile traba el scroll y no se nota sobre el fondo claro */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden lg:block">
-        <div className="absolute -left-28 top-1/3 h-[380px] w-[380px] rounded-full bg-[#CDE8F7]/50 blur-[110px]" />
-        <div className="absolute -right-28 top-1/4 h-[420px] w-[420px] rounded-full bg-[#D8EFFC]/60 blur-[120px]" />
-        <div className="absolute left-1/2 top-0 h-[200px] w-[600px] -translate-x-1/2 rounded-full bg-[#EAF6FD]/70 blur-[100px]" />
-      </div>
-
-      {/* MARCA DE AGUA */}
+      {/* MARCA DE AGUA — ligera, sin blur */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-start justify-center pt-28 md:pt-36">
         <img
           src="/marcaAgua.png"
@@ -110,9 +38,7 @@ const Nosotros = ({ titulo, parrafos, items }) => {
         />
       </div>
 
-      <div className="relative mx-auto max-w-[1280px]">
-        {/* ENCABEZADO CENTRADO — estilo referencia */}
-        <motion.div
+      <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -165,7 +91,6 @@ const Nosotros = ({ titulo, parrafos, items }) => {
             );
           })}
         </div>
-      </div>
     </section>
   );
 };

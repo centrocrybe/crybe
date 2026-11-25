@@ -203,12 +203,12 @@ h4 {
   transition: background-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
 }
 .navbar-scrolled {
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 @media (hover: hover) and (pointer: fine) {
   .navbar-scrolled {
-    background: rgba(255, 255, 255, 0.55);
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
   }

@@ -95,9 +95,6 @@ const Hero = ({ slides }) => {
               "linear-gradient(90deg, rgba(205,190,240,0.16) 0%, rgba(205,190,240,0.0) 20%, rgba(255,255,255,0.0) 55%, rgba(255,255,255,0.0) 100%)",
           }}
         />
-
-        {/* GLOW solo en desktop: el blur grande fijo es de lo más caro en GPU móvil */}
-        <div className="absolute -left-24 top-1/4 hidden h-[320px] w-[320px] rounded-full bg-[#E6D9F7]/35 blur-3xl sm:-left-16 lg:block" />
       </div>
 
       {/* CONTENIDO — en mobile: imagen de fondo + texto superpuesto; tablet/desktop: texto a la izquierda */}

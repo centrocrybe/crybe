@@ -1,7 +1,6 @@
 import Navbar from "../components/layout/NavBar";
 import Footer from "../components/layout/Footer";
 import WhatsApp from "../components/layout/WhatsApp";
-import FondoContinuo from "../components/layout/FondoContinuo";
 import Hero from "../components/home/Hero";
 import Nosotros from "../components/home/Nosotros";
 import Especialidades from "../components/home/Especialidades";
@@ -28,7 +27,6 @@ export default async function Home() {
         adminAvatar={contenido?.ajustes?.avatar || ""}
       />
       <main className="relative bg-[#F4F8FB]">
-        <FondoContinuo />
         <div className="relative">
           <Hero slides={contenido?.hero} />
           <Nosotros

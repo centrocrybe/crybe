@@ -183,11 +183,11 @@ const Equipo = ({ lista: listaProp }) => {
           transition={{ duration: 0.7 }}
           className="mx-auto mb-6 max-w-[780px] text-center sm:mb-8"
         >
-          <p className="font-titulo text-[13px] font-semibold uppercase tracking-[0.24em] text-[#0F3A7A] sm:text-[15px]">
-            Staff Terapéutico
+<p className="font-titulo text-[13px] font-semibold uppercase tracking-[0.24em] text-[#0F3A7A] sm:text-[15px]">
+            Profesionales
           </p>
           <h2 className="mt-2 font-titulo text-[26px] font-semibold leading-tight text-[#1F1F1F] sm:text-[30px] md:text-[38px]">
-            Equipo Profesional Interdisciplinario
+            Especialistas comprometidos con tu bienestar
           </h2>
 
           {/* ACLARACIÓN FUNCIONAL */}

@@ -12,13 +12,14 @@ import {
 } from "lucide-react";
 
 import { cerrarSesion } from "../../app/admin/actions";
+import { links } from "../../lib/navegacion";
 
 const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = "" }) => {
   const [abierto, setAbierto] = useState(false);
   const [menuUsuario, setMenuUsuario] = useState(false);
   const [panel, setPanel] = useState(null);
   const [scrolled, setScrolled] = useState(false);
-  const [seccionActiva, setSeccionActiva] = useState("inicio");
+  const [seccionActiva, setSeccionActiva] = useState("");
   const [adminEmail, setAdminEmail] = useState(emailInicial);
   const [adminAvatar, setAdminAvatar] = useState(avatarInicial);
   const menuUsuarioRef = useRef(null);
@@ -26,6 +27,7 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
   const botonUsuarioMobileRef = useRef(null);
   const menuUsuarioMobileRef = useRef(null);
   const pathname = usePathname();
+  const scrollIgnoradoRef = useRef(false);
 
   // El layout de /admin es compartido: al ir de /admin a /admin/login el Navbar
   // no se remonta y el useState conservaba la sesión vieja, dejando el ícono de
@@ -48,48 +50,11 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
     ? adminEmail.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
     : "";
 
-  const links = [
-    {
-      nombre: "Inicio",
-      href: "/#inicio",
-      id: "inicio",
-    },
-    {
-      nombre: "Nosotros",
-      href: "/#nosotros",
-      id: "nosotros",
-    },
-    {
-      nombre: "Especialidades",
-      href: "/#especialidades",
-      id: "especialidades",
-    },
-    {
-      nombre: "Profesionales",
-      href: "/#equipo",
-      id: "staff",
-    },
-    {
-      nombre: "Recursos",
-      href: "/#novedades",
-      id: "novedades",
-    },
-    {
-      nombre: "Contacto",
-      href: "/#contacto",
-      id: "contacto",
-    },
-  ];
-
   const nombreAdmin = adminEmail ? adminEmail.split("@")[0] : "Administrador";
 
+  // 1) Verificación de sesión admin (solo mount)
   useEffect(() => {
-    if (emailInicial) return; // Ya viene del servidor.
-    // Atajo anti-costo: sin cookie de sesión de Supabase no hay sesión
-    // posible y nos ahorramos el fetch (1 invocación del Worker + auth +
-    // query a admins por cada visita anónima). Cubre .0/.1 (cookies partidas
-    // cuando es larga) y cualquier ref del proyecto. No valida nada: el
-    // servidor sigue verificando con getUser().
+    if (emailInicial) return;
     if (!/(^|;\s*)sb-[^=]*-auth-token/.test(document.cookie)) return;
     let vivo = true;
     (async () => {
@@ -97,7 +62,6 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
         const res = await fetch("/api/admin-status", { cache: "no-store" });
         const { admin } = await res.json();
         if (!vivo) return;
-        // Sin sesión también hay que limpiar: si el server ya la cerró, el ícono desaparece.
         if (admin?.email) {
           setAdminEmail(admin.email);
           setAdminAvatar(admin.avatar || "");
@@ -113,11 +77,8 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 2) Scroll + Resize unificado: navbar scrolled, sección activa, cerrar menú mobile en desktop
   useEffect(() => {
-    // Las secciones no cambian al scrollear: se cachean y solo se
-    // recalculan al redimensionar. Antes se hacía querySelectorAll +
-    // offsetTop en CADA evento de scroll (layout thrash) y en tablet se
-    // sentía como tirones.
     let secciones = [];
     let ticking = false;
 
@@ -129,30 +90,33 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
 
     const actualizarNavbar = () => {
       ticking = false;
+      if (scrollIgnoradoRef.current) return; // Ignorar durante scroll programático
+
       setScrolled(window.scrollY > 20);
 
-      if (secciones.length === 0) {
+      // En páginas que no son home (/admin, /profesionales/[slug], etc.) no hay secciones
+      // así que no marcamos nada como activo
+      if (pathname !== "/") {
+        setSeccionActiva("");
         return;
       }
 
-      const puntoDeteccion = window.scrollY + 120;
+      if (secciones.length === 0) return;
 
+      // Navbar height: 78px mobile / 84px desktop. Offset ~90 para detectar
+      // la sección cuando entra bajo el navbar, no 120 (muy tarde).
+      const puntoDeteccion = window.scrollY + 90;
       let seccionActual = secciones[0];
 
       for (const seccion of secciones) {
         if (seccion.top <= puntoDeteccion) {
           seccionActual = seccion;
-        } else {
-          break;
-        }
+        } else break;
       }
 
-      if (!seccionActual) {
-        return;
-      }
+      if (!seccionActual) return;
 
       const id = seccionActual.id;
-
       if (id === "equipo" || id === "staff") {
         setSeccionActiva("staff");
       } else if (id) {
@@ -160,8 +124,6 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
       }
     };
 
-    // Un solo cálculo por frame: el scroll en mobile dispara decenas de
-    // eventos por segundo y cada uno tocaba el layout.
     const onScroll = () => {
       if (!ticking) {
         ticking = true;
@@ -172,6 +134,7 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
     const onResize = () => {
       medirSecciones();
       actualizarNavbar();
+      if (window.innerWidth >= 1024) setAbierto(false);
     };
 
     medirSecciones();
@@ -186,27 +149,7 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
     };
   }, []);
 
-  useEffect(() => {
-    const manejarResize = () => {
-      if (window.innerWidth >= 1024) {
-        setAbierto(false);
-      }
-    };
-
-    window.addEventListener(
-      "resize",
-      manejarResize
-    );
-
-    return () => {
-      window.removeEventListener(
-        "resize",
-        manejarResize
-      );
-    };
-  }, []);
-
-  // El menú de usuario se cierra solo: tocás afuera, Esc o navegás.
+  // 3) Cerrar menú usuario: click afuera / Escape
   useEffect(() => {
     if (!menuUsuario) return;
 
@@ -230,9 +173,7 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
     };
   }, [menuUsuario]);
 
-  // El panel se ancla a la pantalla, no al botón: si la navbar desborda, el botón
-  // puede quedar fuera del viewport y el menú se iría con él. Se recoloca al
-  // desplazar o redimensionar, y siempre con 16px de margen a cada lado.
+  // 4) Posicionar panel del menú usuario (scroll + resize)
   useEffect(() => {
     if (!menuUsuario) return;
 
@@ -240,9 +181,6 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
     const MARGEN = 16;
 
     const ubicar = () => {
-      // Hay dos botones (desktop y mobile) y solo uno está visible según el
-      // breakpoint, pero ambos quedan montados. El ref compartido lo apuntaría
-      // al oculto, que devuelve un rect de ceros, así que elegimos el visible.
       const candidatos = [botonUsuarioRef.current, botonUsuarioMobileRef.current];
       const boton = candidatos.find((b) => {
         if (!b) return false;
@@ -303,14 +241,16 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
     e.preventDefault();
     setAbierto(false);
     setSeccionActiva(id);
+    scrollIgnoradoRef.current = true;
     const destinoId = id === "staff" ? "equipo" : id;
     requestAnimationFrame(() => {
       const destino = document.getElementById(destinoId);
       if (!destino) {
         window.scrollTo({ top: 0, behavior: "smooth" });
-        return;
+      } else {
+        destino.scrollIntoView({ behavior: "smooth", block: "start" });
       }
-      destino.scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(() => { scrollIgnoradoRef.current = false; }, 600);
     });
     return true;
   };
@@ -433,13 +373,13 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
             <p
               className="
                 text-[11px]
-                font-semibold
+                font-bold
                 uppercase
                 leading-[1.45]
                 tracking-[0.05em]
-                text-[#111111]
+                text-[#0F3A7A]
                 md:text-[12px]
-                lg:text-[13px]
+                lg:text-[14px]
               "
             >
               Centro de Rehabilitación
@@ -476,7 +416,7 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
                   items-center
                   whitespace-nowrap
                   text-[14px]
-                  font-semibold
+                  font-bold
                   transition-colors
                   duration-300
                   xl:text-[15px]
@@ -613,7 +553,7 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
                   "
                 >
                   <User size={16} className="shrink-0 text-[#6B7280]" />
-                  Mi perfil
+                  Ir al panel
                 </a>
                 <button
                   type="button"
@@ -815,7 +755,7 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
                     "
                   >
                     <User size={16} className="shrink-0 text-[#6B7280]" />
-                    Mi perfil
+                    Ir al panel
                   </a>
                   <button
                     type="button"
@@ -927,7 +867,7 @@ const Navbar = ({ adminEmail: emailInicial = null, adminAvatar: avatarInicial = 
                     px-3
                     py-2
                     text-[13px]
-                    font-semibold
+                    font-bold
                     tracking-wide
                     transition-colors
                     duration-300

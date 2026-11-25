@@ -3,6 +3,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 
+import { navegacionFooter } from "../../lib/navegacion";
+
 const textosLegales = {
   aviso: {
     titulo: "Aviso Legal",
@@ -27,14 +29,6 @@ const textosLegales = {
     ],
   },
 };
-
-const navegacion = [
-  { nombre: "Inicio", href: "#inicio" },
-  { nombre: "Nosotros", href: "#nosotros" },
-  { nombre: "Especialidades", href: "#especialidades" },
-  { nombre: "Novedades", href: "#novedades" },
-  { nombre: "Contacto", href: "#contacto" },
-];
 
 const Footer = ({ ajustes }) => {
   const [legal, setLegal] = useState(null);
@@ -129,7 +123,7 @@ const Footer = ({ ajustes }) => {
               </p>
 
               <nav className="mt-2 flex flex-col items-start">
-                {navegacion.map((item) => (
+                {navegacionFooter.map((item) => (
                   <a
                     key={item.nombre}
                     href={item.href}
