@@ -217,6 +217,9 @@ export function EditorProfesional({ inicial, especialidades, count, onCerrar, on
               <option key={e.slug} value={e.slug}>{e.nombre}</option>
             ))}
           </select>
+          <p className="mt-1 text-[11px] leading-4 text-stone-500">
+            Si querés agregar un profesional con una especialidad nueva, primero creala en Especialidades. Después la vas a poder elegir acá.
+          </p>
         </div>
         <div>
           <span className={labelCls}>Modalidad</span>
